@@ -11,7 +11,7 @@ const LMSHashTable = root.common.LMSHashTable;
 
 pub const Msbt = MsbtWithAttr(void);
 
-pub const MsbtError = error{Test};
+pub const MsbtError = error{Todo};
 
 pub fn MsbtWithAttr(comptime Attr: type) type {
     return struct {
@@ -30,12 +30,13 @@ pub fn MsbtWithAttr(comptime Attr: type) type {
         pub fn from_lms_file(lms_file: *LMSFile) MsbtError!*SelfType {
             _ = lms_file;
             //TODO: will have to use an Allocator somehow. and also convert pointer types or smth
-            return MsbtError.Test;
+            return MsbtError.Todo;
         }
 
         pub fn to_lms_file(self: *@This()) MsbtError!LMSFile {
             _ = self;
-            return MsbtError.Test;
+            //TODO
+            return MsbtError.Todo;
         }
     };
 }

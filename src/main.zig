@@ -7,20 +7,10 @@ pub fn main() !void {
     defer gpa.deinit();
     const allocator = gpa.allocator();
 
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
-
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
-
-    try bw.flush(); // don't forget to flush!
-
-    var a = try msgstudio.common.LMSFileKind(msgstudio.msbt.MsbtError).init(msgstudio.msbt.Msbt.new(allocator), allocator);
-    _ = try a.call("to_lms_file", .{});
+    var file = try std.fs.cwd().openFile("test_files/agb.msbt", std.fs.File.OpenFlags{});
+    var lms_file = try msgstudio.common.LMSFile.from_file(allocator, &file);
+    std.log.info("{}\n", .{lms_file});
+    for (lms_file.blocks.items) |block| {
+        std.log.info("block type {s}", .{block.block_type});
+    }
 }
