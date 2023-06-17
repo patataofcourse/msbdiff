@@ -17,8 +17,8 @@ pub const LMSBlock = struct {
 
 pub fn LMSFileKind(comptime Error: type) type {
     return Interface(struct {
-        from_lms_file: fn (*LMSFile) Error!*SelfType,
-        to_lms_file: fn (*SelfType) Error!LMSFile,
+        from_lms_file: *const fn (*LMSFile) Error!*SelfType,
+        to_lms_file: *const fn (*SelfType) Error!LMSFile,
     }, interface.Storage.Owning);
 }
 

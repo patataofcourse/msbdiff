@@ -2,10 +2,11 @@ const std = @import("std");
 
 const msgstudio = @import("msgstudio");
 
-var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-var allocator = gpa.allocator();
-
 pub fn main() !void {
+    var gpa = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer gpa.deinit();
+    const allocator = gpa.allocator();
+
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
@@ -20,5 +21,6 @@ pub fn main() !void {
 
     try bw.flush(); // don't forget to flush!
 
-    try msgstudio.common.LMSFileKind(msgstudio.msbt.MsbtError).init(msgstudio.msbt.Msbt.new(&allocator), &allocator);
+    var a = try msgstudio.common.LMSFileKind(msgstudio.msbt.MsbtError).init(msgstudio.msbt.Msbt.new(allocator), allocator);
+    _ = try a.call("to_lms_file", .{});
 }

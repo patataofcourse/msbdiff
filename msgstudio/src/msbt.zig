@@ -2,7 +2,10 @@ const std = @import("std");
 const ArrayList = std.ArrayList;
 const AutoHashMap = std.AutoHashMap;
 
-const root = @import("root");
+const interface = @import("interface");
+const SelfType = interface.SelfType;
+
+const root = @import("lib.zig");
 const LMSFile = root.common.LMSFile;
 const LMSHashTable = root.common.LMSHashTable;
 
@@ -12,22 +15,25 @@ pub const MsbtError = error{Test};
 
 pub fn MsbtWithAttr(comptime Attr: type) type {
     return struct {
+        const Self = @This();
+
         strings: AutoHashMap([]u8, Message),
         attributes: ArrayList(Attr),
 
-        pub fn new(allocator: *std.mem.Allocator) @This() {
+        pub fn new(allocator: std.mem.Allocator) @This() {
             return @This(){
-                .strings = AutoHashMap([]u8, Message).init(allocator.*),
-                .attributes = ArrayList(Attr).init(allocator.*),
+                .strings = AutoHashMap([]u8, Message).init(allocator),
+                .attributes = ArrayList(Attr).init(allocator),
             };
         }
 
-        pub fn from_lms_file(lms_file: *LMSFile) MsbtError!@This() {
+        pub fn from_lms_file(lms_file: *LMSFile) MsbtError!*SelfType {
             _ = lms_file;
+            //TODO: will have to use an Allocator somehow. and also convert pointer types or smth
             return MsbtError.Test;
         }
 
-        pub fn to_lms_file(self: *@This()) MsbtError!LMSFile() {
+        pub fn to_lms_file(self: *@This()) MsbtError!LMSFile {
             _ = self;
             return MsbtError.Test;
         }

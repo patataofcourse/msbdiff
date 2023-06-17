@@ -9,4 +9,4 @@ git submodule update
 zig build
 ```
 
-After that you can find the binary at zig-out/bin/msbdiff
+After that you can find the binary at zig-out/bin/msbdiff, or run with `zig build run`
