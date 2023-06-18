@@ -20,8 +20,8 @@ pub fn MsbtWithAttr(comptime Attr: type) type {
         strings: AutoHashMap([]u8, Message),
         attributes: ArrayList(Attr),
 
-        pub fn new(allocator: std.mem.Allocator) @This() {
-            return @This(){
+        pub fn new(allocator: std.mem.Allocator) Self {
+            return Self {
                 .strings = AutoHashMap([]u8, Message).init(allocator),
                 .attributes = ArrayList(Attr).init(allocator),
             };
@@ -33,7 +33,7 @@ pub fn MsbtWithAttr(comptime Attr: type) type {
             return MsbtError.Todo;
         }
 
-        pub fn to_lms_file(self: *@This()) MsbtError!LMSFile {
+        pub fn to_lms_file(self: *Self) MsbtError!LMSFile {
             _ = self;
             //TODO
             return MsbtError.Todo;

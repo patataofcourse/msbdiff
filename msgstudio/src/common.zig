@@ -14,14 +14,28 @@ pub const LMSFile = struct {
     magic: [8]u8,
     encoding: Encoding,
     version: u8,
+    unknown: [16]u8,
     blocks: ArrayList(LMSBlock),
 
-    pub fn from_file(allocator: std.mem.Allocator, file: *std.fs.File) !@This() {
+    const Self = @This();
+
+    pub fn from_file(allocator: std.mem.Allocator, file: *std.fs.File) !Self {
         var reader = file.reader();
-        return @This().from_reader(allocator, std.fs.File, std.fs.File.ReadError, std.fs.File.read, &reader);
+        return Self.from_reader(allocator, std.fs.File, std.fs.File.ReadError, std.fs.File.read, &reader);
     }
 
-    pub fn from_reader(allocator: std.mem.Allocator, comptime Context: type, comptime ReadError: type, comptime readFn: fn (Context, []u8) ReadError!usize, file: *std.io.Reader(Context, ReadError, readFn)) !@This() {
+    pub fn to_file(self: Self, file: *std.fs.File, endian: Endian) !void {
+        var writer = file.writer();
+        return self.to_writer(std.fs.File, std.fs.File.WriteError, std.fs.File.write, &writer, endian);
+    }
+
+    pub fn from_reader(
+        allocator: std.mem.Allocator,
+        comptime Context: type,
+        comptime ReadError: type,
+        comptime readFn: fn (Context, []u8) ReadError!usize,
+        file: *std.io.Reader(Context, ReadError, readFn)
+    ) !Self {
         var buf_reader = std.io.bufferedReader(file.*);
         var in_stream = buf_reader.reader();
 
@@ -46,7 +60,7 @@ pub const LMSFile = struct {
         }
 
         const num_blocks = try in_stream.readInt(u16, endian);
-        try in_stream.skipBytes(16, .{});
+        const unknown = try in_stream.readBoundedBytes(16);
 
         var blocks = try ArrayList(LMSBlock).initCapacity(allocator, num_blocks);
         for (0..num_blocks) |_| {
@@ -65,8 +79,45 @@ pub const LMSFile = struct {
             .magic = magic.buffer,
             .encoding = encoding,
             .version = version,
+            .unknown = unknown.buffer,
             .blocks = blocks,
         };
+    }
+
+    pub fn to_writer(
+        self: Self,
+        comptime Context: type,
+        comptime WriteError: type,
+        comptime writeFn: fn (Context, []const u8) WriteError!usize,
+        file: *std.io.Writer(Context, WriteError, writeFn),
+        endian: Endian,
+    ) !void {
+        var buf_writer = std.io.bufferedWriter(file.*);
+        defer buf_writer.flush() catch {};
+        var out_stream = buf_writer.writer();
+
+        try out_stream.writeAll(&self.magic);
+        try out_stream.writeInt(u16, 0xFEFF, endian);
+        try out_stream.writeByteNTimes(0, 2);
+
+        try out_stream.writeByte(@enumToInt(self.encoding));
+        try out_stream.writeByte(self.version);
+
+        try out_stream.writeInt(u16, @intCast(u16, self.blocks.items.len), endian);
+        try out_stream.writeAll(&self.unknown);
+
+        for (self.blocks.items) |block| {
+            try out_stream.writeAll(&block.block_type);
+            const size = block.data.items.len;
+            try out_stream.writeInt(u32, @intCast(u32, block.data.items.len), endian);
+            try out_stream.writeByteNTimes(0, 8);
+
+            try out_stream.writeAll(block.data.items);
+            std.log.warn("{x} {x}", .{size, (16 - (size % 16)) % 16});
+            try out_stream.writeByteNTimes(0xAB, (16 - (size % 16)) % 16);
+        }
+
+        return;
     }
 };
 

@@ -1,4 +1,6 @@
-zig-cache
-zig-out
+zig-cache/
+zig-out/
 
-test_files
+test_files/
+
+.vscode/
