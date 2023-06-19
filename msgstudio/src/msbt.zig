@@ -11,14 +11,13 @@ const LMSHashTable = root.common.LMSHashTable;
 
 pub const Msbt = MsbtWithAttr(void);
 
-pub const MsbtError = error{Todo};
+pub const MsbtError = error{Todo, NotAnMsbt};
 
 pub fn MsbtWithAttr(comptime Attr: type) type {
     return struct {
         const Self = @This();
 
-        strings: AutoHashMap([]u8, Message),
-        attributes: ArrayList(Attr),
+        strings: AutoHashMap([]u8, Message(Attr)),
 
         pub fn new(allocator: std.mem.Allocator) Self {
             return Self {
@@ -27,8 +26,15 @@ pub fn MsbtWithAttr(comptime Attr: type) type {
             };
         }
 
-        pub fn from_lms_file(lms_file: *LMSFile) MsbtError!*SelfType {
-            _ = lms_file;
+        pub fn from_lms_file(allocator: std.mem.Allocator, lms_file: *LMSFile) MsbtError!*SelfType {
+            const magic = "MsgStdBn".*;
+            var blocks_slice = [_][4]u8{"LBL1".*, "TXT2".*};
+            var blocks = ArrayList([4]u8).fromOwnedSlice(allocator, &blocks_slice);
+            defer blocks.deinit();
+
+            if (!std.mem.eql(u8, &magic, &lms_file.magic) or !lms_file.check_blocks(blocks, false)) {
+                return MsbtError.NotAnMsbt;
+            }
             //TODO: will have to use an Allocator somehow. and also convert pointer types or smth
             return MsbtError.Todo;
         }
@@ -41,10 +47,13 @@ pub fn MsbtWithAttr(comptime Attr: type) type {
     };
 }
 
-pub const Message = struct {
-    string: String,
-    style: u32, //indexes the MSBP
-};
+pub fn Message(comptime Attr: type) type {
+    return struct {
+        string: String,
+        style: u32, //indexes the MSBP
+        attribute: ?Attr,
+    };
+}
 
 // might requre some extra stuff
 pub const String = []u8;

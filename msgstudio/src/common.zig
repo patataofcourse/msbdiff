@@ -113,11 +113,26 @@ pub const LMSFile = struct {
             try out_stream.writeByteNTimes(0, 8);
 
             try out_stream.writeAll(block.data.items);
-            std.log.warn("{x} {x}", .{size, (16 - (size % 16)) % 16});
             try out_stream.writeByteNTimes(0xAB, (16 - (size % 16)) % 16);
         }
 
         return;
+    }
+
+    pub fn check_blocks(self: *Self, types: ArrayList([4]u8), exclusive: bool) bool {
+        if (self.blocks.items.len < types.items.len or (exclusive and self.blocks.items.len > types.items.len)) {
+            return false;
+        }
+        for (types.items) |b_type| {
+            for (self.blocks.items) |block| {
+                if (std.mem.eql(u8, &block.block_type, &b_type)) {
+                    break;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
@@ -128,7 +143,7 @@ pub const LMSBlock = struct {
 
 pub fn LMSFileKind(comptime Error: type) type {
     return Interface(struct {
-        from_lms_file: *const fn (*LMSFile) Error!*SelfType,
+        from_lms_file: *const fn (std.mem.Allocator, *LMSFile) Error!*SelfType,
         to_lms_file: *const fn (*SelfType) Error!LMSFile,
     }, interface.Storage.Owning);
 }
