@@ -33,5 +33,5 @@ jobs:
       
       - uses: actions/upload-artifact@v3
         with:
-          name: msbdiff-${{ matrix.targetPlatform }}
+          name: msbdiff-${{ runner.os }}
           path: zig-out/bin
