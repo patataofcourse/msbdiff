@@ -31,7 +31,7 @@ jobs:
         if: runner.os == 'Linux'
         run: zig build -Dtarget=x86_64-linux-gnu
       
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: msbdiff-${{ matrix.targetPlatform }}
           path: zig-out/bin
