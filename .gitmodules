@@ -1,6 +1,3 @@
-[submodule "deps/zigstr"]
-	path = deps/zigstr
-	url = https://github.com/jecolon/zigstr
 [submodule "deps/interface"]
 	path = deps/interface
 	url = https://github.com/alexnask/interface.zig
