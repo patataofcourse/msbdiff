@@ -1,0 +1,34 @@
+name: Build (debug)
+
+on: ["push", "pull_request"]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+      
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: zig build -Dtarget=x86-64-windows
+
+      #TODO: should i add intel mac support somewhere else?
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: zig build -Dtarget=aarch64-macos
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: zig build -Dtarget=x86-64-linux-gnu
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: msbdiff-${{ matrix.targetPlatform }}
+          path: zig-out/bin

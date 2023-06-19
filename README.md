@@ -1,9 +1,9 @@
 # msbdiff
 
 ## Building
-You'll need zig and git
+You'll need zig (get a master build) and git
 
-Tested zig version: `0.11.0-dev.3654+2d6d2a1d1`
+Latest tested zig version: `0.11.0-dev.3696+8d0a8c285`, feel free to open an issue if newer versions break
 
 ```sh
 git submodule init
@@ -11,4 +11,6 @@ git submodule update
 zig build
 ```
 
-After that you can find the binary at zig-out/bin/msbdiff, or run with `zig build run`
+After that you can find the binary at zig-out/bin/msbdiff, 
+
+Alternatively, run directly with `zig build run`
