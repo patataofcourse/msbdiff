@@ -100,16 +100,16 @@ pub const LMSFile = struct {
         try out_stream.writeInt(u16, 0xFEFF, endian);
         try out_stream.writeByteNTimes(0, 2);
 
-        try out_stream.writeByte(@enumToInt(self.encoding));
+        try out_stream.writeByte(@intFromEnum(self.encoding));
         try out_stream.writeByte(self.version);
 
-        try out_stream.writeInt(u16, @intCast(u16, self.blocks.items.len), endian);
+        try out_stream.writeInt(u16, @intCast(self.blocks.items.len), endian);
         try out_stream.writeAll(&self.unknown);
 
         for (self.blocks.items) |block| {
             try out_stream.writeAll(&block.block_type);
             const size = block.data.items.len;
-            try out_stream.writeInt(u32, @intCast(u32, block.data.items.len), endian);
+            try out_stream.writeInt(u32, @intCast(block.data.items.len), endian);
             try out_stream.writeByteNTimes(0, 8);
 
             try out_stream.writeAll(block.data.items);

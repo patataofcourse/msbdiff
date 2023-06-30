@@ -1,6 +1,7 @@
 const std = @import("std");
 
 const msgstudio = @import("msgstudio");
+const util = @import("util");
 
 pub const err = @import("error.zig");
 
@@ -25,11 +26,9 @@ pub fn run() !void {
 
 pub fn main() !void {
     const ret = run();
-    if (ret) |_| {
-
-    } else |e| switch (e) {
+    ret catch |e| switch (e) {
         //TODO: add more information somehow
-        error.Todo => {std.log.err("whatever you tried to run is a TODO", .{});},
+        error.Todo => {util.stdout.qrintln("error: whatever you tried to run is a TODO");},
         else => try ret,
-    }
+    };
 }

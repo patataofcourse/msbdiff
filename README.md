@@ -3,7 +3,7 @@
 ## Building
 You'll need zig (get a master build) and git
 
-Latest tested zig version: `0.11.0-dev.3696+8d0a8c285`, feel free to open an issue if newer versions break
+Latest tested zig version: `0.11.0-dev.3892+0a6cd257b`, feel free to open an issue if newer versions break
 
 ```sh
 git submodule init
