@@ -3,7 +3,7 @@ name: Build (debug)
 on: ["push", "pull_request"]
 
 jobs:
-  test:
+  build:
     strategy:
       fail-fast: false
       matrix:
